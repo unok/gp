@@ -1,0 +1,16 @@
+{
+  "name": "gp",
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@biomejs/biome": "1.5.3",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "openai": "^4.28.0",
+    "typescript": "^5.3.3"
+  }
+}
