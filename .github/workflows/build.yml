@@ -25,7 +25,7 @@ jobs:
         run: bun install
 
       - name: Run bun build
-        run: bun build
-
-      - name: Check build output
-        run: ls -l build
+        run: bun biome ci ./src
+          
+      - name: Run tsc
+        run: bun tsc --noEmit
