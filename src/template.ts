@@ -1,4 +1,5 @@
 import type { Option, OptionTargetOnly, OptionWithCount } from '@/option'
+import type { OptionalTypeNode } from 'typescript'
 
 const isOptionWithCount = (option: Option): option is OptionWithCount => {
   return 'count' in option
@@ -112,6 +113,21 @@ const templates: PromptTemplate[] = [
       5. 結果をカンマ区切りで一行にする
       
       略語の説明:
+      ${option.target}`
+    },
+  },
+  {
+    type: 'default',
+    keywordPattern: /^c$/,
+    outputFormat: undefined,
+    getPrompt: (option: OptionTargetOnly) => {
+      return `あなたは凄腕のプログラマーです。最後に指定した内容を、コミットメッセージに入れるための簡潔な英語にしてください。
+      手順は以下のように行ってください。ただし思考過程は表示不要で5の結果のみ返してください。
+      1. 候補をできるだけリストアップ
+      2. 候補を日本語に変換した場合に意味が違うものを除去
+      3. 一番一般的な結果を選ぶ
+      
+      翻訳対象:
       ${option.target}`
     },
   },
