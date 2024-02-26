@@ -8,15 +8,23 @@ const args = Bun.argv.slice(2)
 if (args.length < 2) {
   throw new Error('引数を指定してください。')
 }
-const keyword = args[0]
+const keyword = args.shift() ?? ''
+const doNotExecute = args[0] === '-n'
+if (doNotExecute) {
+  args.shift()
+}
 const template = selectTemplate(keyword)
-const option = create(keyword, args.slice(1).join(' '), template)
+const option = create(keyword, args.join(' '), template)
 const prompt = isPromptTemplateDefault(template)
   ? template.getPrompt(option as OptionTargetOnly)
   : template.getPrompt(option as OptionWithCount)
-console.log('prompt:', prompt)
+console.log('prompt: ', prompt)
 
-queryGPT4(prompt).then((response) => {
-  console.log(response)
-  copyToClipboardWithSpawn(response)
-})
+if (doNotExecute) {
+  copyToClipboardWithSpawn(prompt)
+} else {
+  queryGPT4(prompt).then((response) => {
+    console.log(response)
+    copyToClipboardWithSpawn(response)
+  })
+}
