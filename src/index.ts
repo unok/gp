@@ -9,18 +9,19 @@ if (args.length < 2) {
   throw new Error('引数を指定してください。')
 }
 const keyword = args.shift() ?? ''
-const doNotExecute = args[0] === '-n'
-if (doNotExecute) {
+const doNotExecute = ['-n', '-nv', '-vn'].includes(args[0])
+const isVerbose = ['-nv', '-vn'].includes(args[0])
+if (doNotExecute || isVerbose) {
   args.shift()
 }
 const template = selectTemplate(keyword)
 const option = create(keyword, args.join(' '), template)
 const prompt = isPromptTemplateDefault(template)
-  ? template.getPrompt(option as OptionTargetOnly)
-  : template.getPrompt(option as OptionWithCount)
+  ? template.getPrompt(option as OptionTargetOnly, isVerbose)
+  : template.getPrompt(option as OptionWithCount, isVerbose)
 console.log('prompt: ', prompt)
 
-if (doNotExecute) {
+if (doNotExecute || isVerbose) {
   copyToClipboardWithSpawn(prompt)
 } else {
   queryGPT4(prompt).then((response) => {
