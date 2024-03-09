@@ -88,14 +88,38 @@ const templates: PromptTemplate[] = [
       手順は以下のように行ってください。ただし思考過程は表示不要で5の結果のみ返してください。
       1. 候補をできるだけリストアップ
       2. 候補が元の意味の関数として解釈できないものを除去
-      3. 一般的に使われている順番で並べ替える
-      4. 一般的な順番に${option.count}個だけに絞る
-      5. 結果をカンマ区切りで一行にする
+      3. 候補がプログラミング言語のTypeScript,PHP,Pythonの予約語として使われているものを除去
+      4. 一般的に使われている順番で並べ替える
+      5. 一般的な順番に${option.count}個だけに絞る
+      6. 結果をカンマ区切りで一行にする
       
       関数の説明:
       ${option.target}`
     },
   },
+  {
+    type: 'withCount',
+    keywordPattern: /^var?([0-9]+)?$/,
+    outputFormat: undefined,
+    getPrompt: (option: OptionWithCount, isVerbose: boolean) => {
+      if (!isOptionWithCount(option)) {
+        throw new Error('OptionWithCountではありません。')
+      }
+      return `最後に指定した説明に合致するようなキャメルケースの変数名を考えてください。
+      ${!isVerbose ? 'ただし解説や思考過程などは必要ないので、最後の手順の結果のみを返してください。' : ''}
+      手順は以下のように行ってください。
+      1. 候補をできるだけリストアップ
+      2. 候補が元の意味の変数名として解釈できないものを除去
+      3. 候補がプログラミング言語のTypeScript,PHP,Pythonの予約語として使われているものを除去
+      4. 一般的に使われている順番で並べ替える
+      5. 一般的な順番に${option.count}個だけに絞る
+      6. 結果をカンマ区切りで一行にする
+      
+      変数の説明:
+      ${option.target}`
+    },
+  },
+
   {
     type: 'withCount',
     keywordPattern: /^abbr?([0-9]+)?$/,
