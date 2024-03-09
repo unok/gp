@@ -9,14 +9,14 @@ type PromptTemplateDefault = {
   type: 'default'
   keywordPattern: RegExp
   outputFormat: string | undefined
-  getPrompt: (option: OptionTargetOnly) => string
+  getPrompt: (option: OptionTargetOnly, isVerbose: boolean) => string
 }
 
 type PromptTemplateWithCount = {
   type: 'withCount'
   keywordPattern: RegExp
   outputFormat: string | undefined
-  getPrompt: (option: OptionWithCount) => string
+  getPrompt: (option: OptionWithCount, isVerbose: boolean) => string
 }
 
 export const isPromptTemplateDefault = (template: PromptTemplate): template is PromptTemplateDefault => {
@@ -30,10 +30,10 @@ const templates: PromptTemplate[] = [
     type: 'default',
     keywordPattern: /^e$/,
     outputFormat: undefined,
-    getPrompt: (option: OptionTargetOnly) => {
+    getPrompt: (option: OptionTargetOnly, isVerbose: boolean) => {
       return `最後に指定した翻訳対象の文章を英語に翻訳してください。
-      ただし解説などは必要ないので、翻訳結果のみを返してください。
-      手順は以下の様に行ってください。ただし、思考過程は表示不要で3の結果のみを返してください。
+      ${!isVerbose ? 'ただし解説や思考過程などは必要ないので、最後の手順の結果のみを返してください。' : ''}
+      手順は以下の様に行ってください。
       1. 5個以上の翻訳結果を作る
       2. 翻訳結果を英語に戻し意味が変わっていれば除外する
       3. 残った中から一番一般的な表現を選ぶ
@@ -46,10 +46,10 @@ const templates: PromptTemplate[] = [
     type: 'default',
     keywordPattern: /^j$/,
     outputFormat: undefined,
-    getPrompt: (option: OptionTargetOnly) => {
+    getPrompt: (option: OptionTargetOnly, isVerbose: boolean) => {
       return `最後に指定した翻訳対象の文章を日本語に翻訳してください。
-      ただし解説などは必要ないので、翻訳結果のみを返してください。
-      手順は以下の様に行ってください。ただし、思考過程は表示不要で3の結果のみを返してください。
+      ${!isVerbose ? 'ただし解説や思考過程などは必要ないので、最後の手順の結果のみを返してください。' : ''}
+      手順は以下の様に行ってください。
       1. 5個以上の翻訳結果を作る
       2. 翻訳結果を日本語に戻し意味が変わっていれば除外する
       3. 残った中から一番一般的な表現を選ぶ
@@ -62,12 +62,12 @@ const templates: PromptTemplate[] = [
     type: 'default',
     keywordPattern: /^itj?$/,
     outputFormat: undefined,
-    getPrompt: (option: OptionTargetOnly) => {
+    getPrompt: (option: OptionTargetOnly, isVerbose: boolean) => {
       return `あなたは、プログラミングやAPIのドキュメントを日本語に翻訳するエキスパートです。
       最後に指定した翻訳対象の技術文書を日本語に翻訳してください。
-      ただし解説などは必要ないので、翻訳結果のみを返してください。
+      ${!isVerbose ? 'ただし解説や思考過程などは必要ないので、最後の手順の結果のみを返してください。' : ''}
       技術の名前と思われる単語は、無理に翻訳せずにそのままにしてください。
-      手順は以下の様に行ってください。ただし、思考過程は表示不要で3の結果のみを返してください。
+      手順は以下の様に行ってください。
       1. 5個以上の翻訳結果を作る
       2. 翻訳結果を日本語に戻し意味が変わっていれば除外する
       3. 残った中から一番一般的な表現を選ぶ
@@ -80,12 +80,13 @@ const templates: PromptTemplate[] = [
     type: 'withCount',
     keywordPattern: /^func?([0-9]+)?$/,
     outputFormat: undefined,
-    getPrompt: (option: OptionWithCount) => {
+    getPrompt: (option: OptionWithCount, isVerbose: boolean) => {
       if (!isOptionWithCount(option)) {
         throw new Error('OptionWithCountではありません。')
       }
       return `最後に指定した説明に合致するようなキャメルケースの関数名を考えてください。
-      手順は以下のように行ってください。ただし思考過程は表示不要で5の結果のみ返してください。
+      ${!isVerbose ? 'ただし解説や思考過程などは必要ないので、最後の手順の結果のみを返してください。' : ''}
+      手順は以下のように行ってください。
       1. 候補をできるだけリストアップ
       2. 候補が元の意味の関数として解釈できないものを除去
       3. 候補がプログラミング言語のTypeScript,PHP,Pythonの予約語として使われているものを除去
@@ -124,12 +125,13 @@ const templates: PromptTemplate[] = [
     type: 'withCount',
     keywordPattern: /^abbr?([0-9]+)?$/,
     outputFormat: undefined,
-    getPrompt: (option: OptionWithCount) => {
+    getPrompt: (option: OptionWithCount, isVerbose: boolean) => {
       if (!isOptionWithCount(option)) {
         throw new Error('OptionWithCountではありません。')
       }
       return `あなたはITのテクニカルライターです。最後に指定した言葉の省略前の単語を考えてください。
-      手順は以下のように行ってください。ただし思考過程は表示不要で5の結果のみ返してください。
+      ${!isVerbose ? 'ただし解説や思考過程などは必要ないので、最後の手順の結果のみを返してください。' : ''}
+      手順は以下のように行ってください。
       1. 候補をできるだけリストアップ
       2. 候補が指定した略語として使われないものを削除
       3. IT界隈で使われている順番で並べ替える
@@ -144,9 +146,10 @@ const templates: PromptTemplate[] = [
     type: 'default',
     keywordPattern: /^c$/,
     outputFormat: undefined,
-    getPrompt: (option: OptionTargetOnly) => {
+    getPrompt: (option: OptionTargetOnly, isVerbose: boolean) => {
       return `あなたは凄腕のプログラマーです。最後に指定した内容を、コミットメッセージに入れるための簡潔な英語にしてください。
-      手順は以下のように行ってください。ただし思考過程は表示不要で5の結果のみ返してください。
+      ${!isVerbose ? 'ただし解説や思考過程などは必要ないので、最後の手順の結果のみを返してください。' : ''}
+      手順は以下のように行ってください。
       1. 候補をできるだけリストアップ
       2. 候補を日本語に変換した場合に意味が違うものを除去
       3. 一番一般的な結果を選ぶ
